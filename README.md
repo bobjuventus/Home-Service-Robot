@@ -2,65 +2,61 @@
 
 [![Udacity - Robotics NanoDegree Program](https://s3-us-west-1.amazonaws.com/udacity-robotics/Extra+Images/RoboND_flag.png)](https://www.udacity.com/robotics)
 
-# RoboND-Go Chase It!
-The **Go Chase It** project is to build a world then let a robot chase a ball within this world. In this project, two ROS packages are created `drive_bot` and `ball_chaser`. Here are the steps to design the robot, house it inside your world, and program it to chase white-colored balls.
+# RoboND-Where Am I!
+The **Where Am I** project is to deploy robot in a world full of features. The robot initial pose could be completely off, however, after applying AMCL (Adaptive Monte Carlo Localization) after each movement and measurement, the robot slowly localizes itself at the right pose.
+
+There are several packages to make this work. `map_server` package to load and publish the map. `amcl` package which takes the odom and sensor measurement data and perform localization. For odom data, it can either come from using the `teleop_twist_keyboard` package or `move_base` package. For sensor measurement, it comes from reading the laser scan data and compare it to the loaded map from `map_server` package. Lastly, we can use either the `teleop_twist_keyboard` package to tele-operate the robot or use the `move_base` package to set navigation goal for robot to navigate.
 
 ### Directory Structure
 ```
-    .Project2                          # Go Chase It Project
+    .Project                           # Go Chase It Project
     ├── my_robot                       # my_robot package                   
     │   ├── launch                     # launch folder for launch files   
     │   │   ├── robot_description.launch
     │   │   ├── world.launch
+    │   │   ├── amcl.launch
+    │   ├── config                     # config folder for config files   
+    │   │   ├── base_local_planner_params.yaml
+    │   │   ├── costmap_common_params.yaml
+    │   │   ├── global_costmap_params.yaml
+    │   │   ├── local_costmap_params.yaml
     │   ├── meshes                     # meshes folder for sensors
     │   │   ├── hokuyo.dae
     │   ├── urdf                       # urdf folder for xarco files
     │   │   ├── my_robot.gazebo
     │   │   ├── my_robot.xacro
+    │   ├── maps                       # maps folder for map files
+    │   │   ├── gazeboworld1.pgm
+    │   │   ├── gazeboworld1.yaml
     │   ├── world                      # world folder for world files
-    │   │   ├── gazeboworld.world
+    │   │   ├── gazeboworld1.world
     │   ├── CMakeLists.txt             # compiler instructions
     │   ├── package.xml                # package info
-    ├── ball_chaser                    # ball_chaser package                   
-    │   ├── launch                     # launch folder for launch files   
-    │   │   ├── ball_chaser.launch
-    │   ├── src                        # source folder for C++ scripts
-    │   │   ├── drive_bot.cpp
-    │   │   ├── process_images.cpp
-    │   ├── srv                        # service folder for ROS services
-    │   │   ├── DriveToTarget.srv
-    │   ├── CMakeLists.txt             # compiler instructions
-    │   ├── package.xml                # package info                  
-    └──                              
+    ├── pgm_map_creator                # pgm_map_creator package                   
+                             
 ```
 
-### Robot Design
+### Using `teleop_twist_keyboard` to move robot
 
 #### Steps:
-* Modify the xacro file of `my_robot` to include the body (chassis and wheels), camera and lidar.
-* Adding some colors to Then adding the plugins for differential drive, camera and lidar.
-* After creating these changes, launch the model along with the world previous created and adjust the initial robot pose to make sure the robot is at an empty space in the world.
+* Initially, it can be seen the robot is near the middle of the world, but the initial guess pose is at the corner, so way off.
+![alt text](images/teleop1.png)
+* After moving the robot a bit, it shows that the robot is less confident where it is with particles all over the place.
+![alt text](images/teleop2.png)
+* After a while, the robot has two main places that it believes where it is and finally jumps from the wrong place to the right place. Notice this is best to be seen in the `map` frame instead of `odom` frame, as `map` frame allows discrete change in pose but `odom` is usually continous change.
+![alt text](images/teleop4.png)
+* Finally, the robot localizes itself at the right location with high confidence.
+![alt text](images/teleop5.png)
 
-### Gazebo World
-
-#### Steps:
-* Create a white ball model.
-* Insert the ball model into the existed world and save it as a new world.
-* Make sure the ball can be dragged inside the world.
-
-### Ball Chasing
+### Using `move_base` to move robot
 
 #### Steps:
-* `drive_bot` creates `ball_chaser/command_robot` service that will publish velocity (linear and angular) to the robot.
-* In `drive_bot`, the `ball_chaser/command_robot` service returns/responses a string that prints robot's linear_x velocity and angular_z velocity.
-* `process_image` subscribes to the `/camera/rgb/image_raw` topic and determines/callbacks which zone the whiteball is in. Once determines which zone is in, it will call the `ball_chaser/command_robot` service to send the corresponding velocities to the robot.
-* If no ball is in the view, the robot should stop.
-
-A view of the robot chasing the ball can be viewed here:
-![alt text](images/chase_ball.png)
+* Again, initially, the robot is near the edge of the room, but it thinks it is at the center of the room.
+![alt text](images/move_base1.png)
+* After moving the robot a while, it finally localizes itself.
+![alt text](images/move_base2.png)
 
 ### Future Steps
 
-* Add in the lidar reading so that the robot can keep some distance to the ball. Right now the robot will run into ball.
-* Add some exploration mode to the robot so it can autonomously look for ball.
-* Add random motion to the ball so its movement does not need to be manually controlled.
+* The features in this world are still quite few, so it can take a while and find the sweet spot (with rich features) to localize itself. Suspect adding more furnitures would help.
+* Did not play with the settings of the `amcl` package too much, changing some parameters may help.
