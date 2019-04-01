@@ -2,10 +2,10 @@
 
 [![Udacity - Robotics NanoDegree Program](https://s3-us-west-1.amazonaws.com/udacity-robotics/Extra+Images/RoboND_flag.png)](https://www.udacity.com/robotics)
 
-# RoboND-Where Am I!
-The **Where Am I** project is to deploy robot in a world full of features. The robot initial pose could be completely off, however, after applying AMCL (Adaptive Monte Carlo Localization) after each movement and measurement, the robot slowly localizes itself at the right pose.
+# RoboND-Map My World!
+The **Map My World** project is to do a graph based SLAM to map an unknown world. The package we use is `RTAB-Map`.
 
-There are several packages to make this work. `map_server` package to load and publish the map. `amcl` package which takes the odom and sensor measurement data and perform localization. For odom data, it can either come from using the `teleop_twist_keyboard` package or `move_base` package. For sensor measurement, it comes from reading the laser scan data and compare it to the loaded map from `map_server` package. Lastly, we can use either the `teleop_twist_keyboard` package to tele-operate the robot or use the `move_base` package to set navigation goal for robot to navigate.
+There are several packages to make this work. `my_robot` package to launch the world (world2map.world in this case). `rtabmap` package which takes the odom (motion), depth sensor measurement (measurement), and rgb (correspondence for loop closure) data and perform graph-based SLAM. Lastly, `teleop_twist_keyboard` package is used to move the robot.
 
 ### Directory Structure
 ```
@@ -14,49 +14,39 @@ There are several packages to make this work. `map_server` package to load and p
     │   ├── launch                     # launch folder for launch files   
     │   │   ├── robot_description.launch
     │   │   ├── world.launch
-    │   │   ├── amcl.launch
-    │   ├── config                     # config folder for config files   
-    │   │   ├── base_local_planner_params.yaml
-    │   │   ├── costmap_common_params.yaml
-    │   │   ├── global_costmap_params.yaml
-    │   │   ├── local_costmap_params.yaml
+    │   │   ├── mapping.launch
     │   ├── meshes                     # meshes folder for sensors
     │   │   ├── hokuyo.dae
     │   ├── urdf                       # urdf folder for xarco files
     │   │   ├── my_robot.gazebo
     │   │   ├── my_robot.xacro
-    │   ├── maps                       # maps folder for map files
-    │   │   ├── gazeboworld1.pgm
-    │   │   ├── gazeboworld1.yaml
     │   ├── world                      # world folder for world files
-    │   │   ├── gazeboworld1.world
+    │   │   ├── world2map.world
     │   ├── CMakeLists.txt             # compiler instructions
     │   ├── package.xml                # package info
-    ├── pgm_map_creator                # pgm_map_creator package                   
+    ├── teleop_twist_keyboard          # teleop_twist_keyboard package                   
                              
 ```
 
-### Using `teleop_twist_keyboard` to move robot
+### Using `RTAB-Map` package to perform SLAM
 
 #### Steps:
-* Initially, it can be seen the robot is near the middle of the world, but the initial guess pose is at the corner, so way off.
-![alt text](images/teleop1.png)
-* After moving the robot a bit, it shows that the robot is less confident where it is with particles all over the place.
-![alt text](images/teleop2.png)
-* After a while, the robot has two main places that it believes where it is and finally jumps from the wrong place to the right place. Notice this is best to be seen in the `map` frame instead of `odom` frame, as `map` frame allows discrete change in pose but `odom` is usually continous change.
-![alt text](images/teleop4.png)
-* Finally, the robot localizes itself at the right location with high confidence.
-![alt text](images/teleop5.png)
+* After launching the world (which in this case is the kitchen model), teleop_keyboard and rtabmap package, we drive robot around to generate the map. Notice that the `Grid/3D` and `Grid/FromDepth` parameters in the `rtabmap` package have to be true. Otherwise the map is not updated. (Maybe only one of these two parameters needs to be true)
+![alt text](images/overall.png)
+* While driving robot around, terminal will display time to time that it rejects a loop closure because the number of matching features has not reached threshold (15). Keep driving robot until the whole map is filled.
+* After finishing driving robot around, close the rtabmap terminal and a `.db` file should be saved under `/root/.ros` folder. Run this command to view the file: `rtabmap-databaseViewer ~/.ros/rtabmap.db`. My db file size is around 225 MB, and can be downloaded from [here](https://www.amazon.com/clouddrive/share/JEVrLQkPEMqEXpeWf4og44LQVGOPVH3Uja91RRApwdv).
+* We can see that there are 502 frames and 38 global loop closures. Below are three examples of global loop closures which we will look at the features closely soon.
+![alt text](images/lc1.png)
 
-### Using `move_base` to move robot
+![alt text](images/lc2.png)
 
-#### Steps:
-* Again, initially, the robot is near the edge of the room, but it thinks it is at the center of the room.
-![alt text](images/move_base1.png)
-* After moving the robot a while, it finally localizes itself.
-![alt text](images/move_base2.png)
+![alt text](images/lc3.png)
+
+* From the images we can see that the features are usually at corners, places with color changes or contour of specific shapes. Larger the purple circle is, higher confidence there is a match.
+* Finally, we can display everything flat to look from top down.
+![alt text](images/occupancygrid.png)
 
 ### Future Steps
 
-* The features in this world are still quite few, so it can take a while and find the sweet spot (with rich features) to localize itself. Suspect adding more furnitures would help.
-* Did not play with the settings of the `amcl` package too much, changing some parameters may help.
+* Not sure if the terminal outputs when there is a loop closure detected. Right now have to blindly drive around and hope there are enough loop closures.
+* The map generated still has some noise after roaming robot around a few times. Is this related to the depth sensor resolution is not high enough?
