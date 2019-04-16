@@ -35,8 +35,10 @@ int main(int argc, char** argv){
   ac.waitForResult();
 
   // Check if the robot reached its goal
-  if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+  if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
     ROS_INFO("Hooray, the base moved 1 meter forward");
+    ros::Duration(5).sleep();
+  }
   else
     ROS_INFO("The base failed to move forward 1 meter for some reason");
 
