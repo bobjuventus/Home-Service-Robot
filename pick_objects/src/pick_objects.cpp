@@ -41,6 +41,16 @@ int main(int argc, char** argv){
   // Wait an infinite time for the results
   ac.waitForResult();
 
+    // Check if the robot reached its goal
+  if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+    ROS_INFO("Hooray, the base reached the first zone");
+    ros::Duration(5).sleep();
+  }
+  else {
+    ROS_INFO("The base failed to reach the first zone");
+    ros::Duration(5).sleep();
+  }
+
   // Second goal back to origin
   move_base_msgs::MoveBaseGoal goal2 = sendgoal("map", 0.0, 1.0);
    // Send the goal position and orientation for the robot to reach
@@ -52,11 +62,11 @@ int main(int argc, char** argv){
 
   // Check if the robot reached its goal
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-    ROS_INFO("Hooray, the base moved 1 meter forward");
+    ROS_INFO("Hooray, the base reached the second zone");
     ros::Duration(5).sleep();
   }
   else {
-    ROS_INFO("The base failed to move forward 1 meter for some reason");
+    ROS_INFO("The base failed to reached the second zone");
     ros::Duration(5).sleep();
   }
   return 0;
