@@ -1,18 +1,36 @@
 #include <ros/ros.h>
 #include <visualization_msgs/Marker.h>
+#include <move_base_msgs/MoveBaseActionResult.h>
+
+bool reachgoal = false;
+void Callback(const move_base_msgs::MoveBaseActionResult::ConstPtr &msg)
+// void Callback(const move_base_msgs::MoveBaseActionResult &msg)
+{
+  ROS_INFO("Callback has been called!");
+  if ((*msg).status.status == 3) {
+    ROS_INFO("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    reachgoal = true;
+    return;
+  }
+}
+
+
 
 int main( int argc, char** argv )
 {
+  
   ros::init(argc, argv, "add_markers");
   ros::NodeHandle n;
   ros::Rate r(1);
   ros::Publisher marker_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 1);
+  ros::Subscriber pose_sub = n.subscribe<move_base_msgs::MoveBaseActionResult>("move_base/result", 10, Callback);
 
   // Set our initial shape type to be a cube
   uint32_t shape = visualization_msgs::Marker::CUBE;
 
   while (ros::ok())
   {
+    // Initially show the marker at the pickup zone
     visualization_msgs::Marker marker;
     // Set the frame ID and timestamp.  See the TF tutorials for information on these.
     marker.header.frame_id = "map";
@@ -65,15 +83,30 @@ int main( int argc, char** argv )
 
     ROS_INFO("Showing the marker at location 1");
 
-    // wait 5 seconds then hide the marker
-    ros::Duration(5).sleep();
+    // wait for the robot to reach the pickup zone
+    while (!reachgoal) {
+      ROS_INFO_ONCE("Waiting for the goal to be reached");
+    }
+    reachgoal = false;
+
+    ROS_INFO("Reached the first goal");
+
+    // hide the marker then wait 5 seconds
     marker.action = visualization_msgs::Marker::DELETEALL;
     marker_pub.publish(marker);
-
-    ROS_INFO("Deleted the marker at location 1");
-
-    // publish the marker at the drop off zone
     ros::Duration(5).sleep();
+
+    ROS_INFO("Marker has been picked up");
+
+    // wait for the robot to reach the dropoff zone
+    while (!reachgoal) {
+      ROS_INFO_ONCE("Waiting for the goal to be reached");
+    }
+    reachgoal = false;
+
+    ROS_INFO("Reached the second goal");
+
+    // show the marker at the drop off zone
     marker.action = visualization_msgs::Marker::ADD;
 
     // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
@@ -97,7 +130,7 @@ int main( int argc, char** argv )
     }
     marker_pub.publish(marker);
 
-    ROS_INFO("Showing the marker at location 2");
+    ROS_INFO("Marker has been dropped");
 
     // wait 5 seconds then hide the marker
     ros::Duration(5).sleep();
