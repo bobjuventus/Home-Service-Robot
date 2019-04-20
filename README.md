@@ -3,7 +3,7 @@
 [![Udacity - Robotics NanoDegree Program](https://s3-us-west-1.amazonaws.com/udacity-robotics/Extra+Images/RoboND_flag.png)](https://www.udacity.com/robotics)
 
 # RoboND-Home Service Robot!
-The **Home Service Robot** project is to combine multiple packages (`slam_gmapping` for SLAM,, `turtlebot` for turtlebot description and teleoperation, `turtlebot_interactions` for rviz config and markers, `turtlebot_gazebo` for launching the world and using amcl for localization, and `turtlebot_navigation` for navigation).
+The **Home Service Robot** project is to combine multiple packages (`slam_gmapping` for SLAM, `turtlebot` for turtlebot description and teleoperation, `turtlebot_interactions` for rviz config and markers, `turtlebot_gazebo` for launching the world and using amcl for localization, and `turtlebot_navigation` for navigation). The `turtlebot_navigation` package source files are not included, and the `dwa_local_planner_params.yaml` within this package needs to be changed to better control the robot.
 
 Several script files were also created to test sub-tasks. Please see the directory structure below for more information.
 
@@ -40,7 +40,7 @@ Several script files were also created to test sub-tasks. Please see the directo
     │   ├── test_slam.sh
     │   ├── ...
     ├──rvizConfig                      # rviz configuration files
-    │   ├──                            # Notice this rviz file is also saved under turtlebot_interactions/turtlebot_rviz_launchers/rviz/ which is the one being called.
+    │   ├── navigation_with_marker.rviz  # Notice this rviz file is also saved under turtlebot_interactions/turtlebot_rviz_launchers/rviz/ which is the one being called.
     ├──pick_objects                    # pick_objects C++ node
     │   ├── src/pick_objects.cpp
     │   ├── ...
