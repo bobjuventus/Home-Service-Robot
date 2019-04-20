@@ -3,7 +3,7 @@
 [![Udacity - Robotics NanoDegree Program](https://s3-us-west-1.amazonaws.com/udacity-robotics/Extra+Images/RoboND_flag.png)](https://www.udacity.com/robotics)
 
 # RoboND-Home Service Robot!
-The **Home Service Robot** project is to combine multiple packages (`slam_gmapping` for SLAM,, `turtlebot` for turtlebot description and teleoperation, `turtlebot_interactions` for rviz config and markers, `turtlebot_gazebo` for launching the world and using amcl for localization, `turtlebot_navigation` for navigation).
+The **Home Service Robot** project is to combine multiple packages (`slam_gmapping` for SLAM,, `turtlebot` for turtlebot description and teleoperation, `turtlebot_interactions` for rviz config and markers, `turtlebot_gazebo` for launching the world and using amcl for localization, and `turtlebot_navigation` for navigation).
 
 Several script files were also created to test sub-tasks. Please see the directory structure below for more information.
 
@@ -54,25 +54,37 @@ Several script files were also created to test sub-tasks. Please see the directo
                              
 ```
 
-### Using `RTAB-Map` package to perform SLAM
+### Explaination of each script
 
-#### Steps:
-* After launching the world (which in this case is the kitchen model), teleop_keyboard and rtabmap package, we drive robot around to generate the map. Notice that the `Grid/3D` and `Grid/FromDepth` parameters in the `rtabmap` package have to be true. Otherwise the map is not updated. (Maybe only one of these two parameters needs to be true)
-![alt text](images/overall.png)
-* While driving robot around, terminal will display time to time that it rejects a loop closure because the number of matching features has not reached threshold (15). Keep driving robot until the whole map is filled.
-* After finishing driving robot around, close the rtabmap terminal and a `.db` file should be saved under `/root/.ros` folder. Run this command to view the file: `rtabmap-databaseViewer ~/.ros/rtabmap.db`. My db file size is around 225 MB, and can be downloaded from [here](https://www.amazon.com/clouddrive/share/JEVrLQkPEMqEXpeWf4og44LQVGOPVH3Uja91RRApwdv).
-* We can see that there are 502 frames and 38 global loop closures. Below are three examples of global loop closures which we will look at the features closely soon.
-![alt text](images/lc1.png)
+#### `test_slam.sh`:
+* Use `turtlebot_world.launch` to deploy a turtlebot in the environment.
+* Use `slam_gmapping.launch` to perform SLAM.
+* Use `view_navigation.launch` to view map in rviz. Notice there is no map pre-loaded.
+* Use `keyboard_teleop.launch` to drive robot around to generate map.
 
-![alt text](images/lc2.png)
+#### `test_navigation.sh`:
+* Use `turtlebot_world.launch` to deploy a turtlebot in the environment.
+* Use `amcl_demo.launch` to perform localization. This will call map_server to load a map.
+* Use `view_navigation.launch` to view map in rviz and send 2D nav goal to robot. A map is pre-loaded.
 
-![alt text](images/lc3.png)
+#### `pick_objects.sh`:
+* Use `turtlebot_world.launch` to deploy a turtlebot in the environment.
+* Use `amcl_demo.launch` to perform localization. This will call map_server to load a map.
+* Use `view_navigation.launch` to view map in rviz. A map is pre-loaded.
+* Use `pick_objects.cpp` to go to two goal positions.
 
-* From the images we can see that the features are usually at corners, places with color changes or contour of specific shapes. Larger the purple circle is, higher confidence there is a match.
-* Finally, we can display everything flat to look from top down.
+#### `add_markers.sh`:
+* Use `turtlebot_world.launch` to deploy a turtlebot in the environment.
+* Use `amcl_demo.launch` to perform localization. This will call map_server to load a map.
+* Use `view_navigation.launch` to view map in rviz. A map is pre-loaded.
+* Use `add_markers.cpp` to display marker between two goal positions.
+
+#### `home_service.sh`:
+* Use `turtlebot_world.launch` to deploy a turtlebot in the environment.
+* Use `amcl_demo.launch` to perform localization. This will call map_server to load a map.
+* Use `view_navigation.launch` to view map in rviz. A map is pre-loaded.
+* Use `pick_objects.cpp` to go to two goal positions.
+* Use `home_service.cpp` to pick up the marker at one position and drop it off at the other position.
+
+The `home_service.sh` script eventually looks like this:
 ![alt text](images/occupancygrid.png)
-
-### Future Steps
-
-* Not sure if the terminal outputs when there is a loop closure detected. Right now have to blindly drive around and hope there are enough loop closures.
-* The map generated still has some noise after roaming robot around a few times. Is this related to the depth sensor resolution is not high enough?
