@@ -2,29 +2,55 @@
 
 [![Udacity - Robotics NanoDegree Program](https://s3-us-west-1.amazonaws.com/udacity-robotics/Extra+Images/RoboND_flag.png)](https://www.udacity.com/robotics)
 
-# RoboND-Map My World!
-The **Map My World** project is to do a graph based SLAM to map an unknown world. The package we use is `RTAB-Map`.
+# RoboND-Home Service Robot!
+The **Home Service Robot** project is to combine multiple packages (`slam_gmapping` for SLAM,, `turtlebot` for turtlebot description and teleoperation, `turtlebot_interactions` for rviz config and markers, `turtlebot_gazebo` for launching the world and using amcl for localization, `turtlebot_navigation` for navigation).
 
-There are several packages to make this work. `my_robot` package to launch the world (world2map.world in this case). `rtabmap` package which takes the odom (motion), depth sensor measurement (measurement), and rgb (correspondence for loop closure) data and perform graph-based SLAM. Lastly, `teleop_twist_keyboard` package is used to move the robot.
+Several script files were also created to test sub-tasks. Please see the directory structure below for more information.
 
 ### Directory Structure
 ```
-    .Project                           # Go Chase It Project
-    ├── my_robot                       # my_robot package                   
-    │   ├── launch                     # launch folder for launch files   
-    │   │   ├── robot_description.launch
-    │   │   ├── world.launch
-    │   │   ├── mapping.launch
-    │   ├── meshes                     # meshes folder for sensors
-    │   │   ├── hokuyo.dae
-    │   ├── urdf                       # urdf folder for xarco files
-    │   │   ├── my_robot.gazebo
-    │   │   ├── my_robot.xacro
-    │   ├── world                      # world folder for world files
-    │   │   ├── world2map.world
-    │   ├── CMakeLists.txt             # compiler instructions
-    │   ├── package.xml                # package info
-    ├── teleop_twist_keyboard          # teleop_twist_keyboard package                   
+    .Project                           # Home Service Robot Project
+    ├──                                # Official ROS packages
+    |
+    ├── slam_gmapping                  # gmapping_demo.launch file                   
+    │   ├── gmapping
+    │   ├── ...
+    ├── turtlebot                      # keyboard_teleop.launch file
+    │   ├── turtlebot_teleop
+    │   ├── ...
+    ├── turtlebot_interactions         # view_navigation.launch file      
+    │   ├── turtlebot_rviz_launchers
+    │   ├── ...
+    ├── turtlebot_simulator            # turtlebot_world.launch file 
+    │   ├── turtlebot_gazebo
+    │   ├── ...
+    ├── turtlebot_navigation           # system installed navigation package for turtlebot 
+    │   ├── param
+    │       ├── dwa_local_planner_params.yaml      # this file needs to be modified to have proper control and Goal Tolerance Parameters
+    │       ├── ...
+    ├──                                # Your packages and direcotries
+    |
+    ├── map                            # map files
+    │   ├── ...
+    ├── scripts                        # shell scripts files
+    │   ├── add_marker.sh
+    │   ├── home_service.sh
+    │   ├── pick_objects.sh
+    │   ├── test_navigation.sh
+    │   ├── test_slam.sh
+    │   ├── ...
+    ├──rvizConfig                      # rviz configuration files
+    │   ├──                            # Notice this rviz file is also saved under turtlebot_interactions/turtlebot_rviz_launchers/rviz/ which is the one being called.
+    ├──pick_objects                    # pick_objects C++ node
+    │   ├── src/pick_objects.cpp
+    │   ├── ...
+    ├──add_markers                     # add_marker C++ node
+    │   ├── src/add_markers.cpp
+    │   ├── ...
+    ├──home_service                    # home_service C++ node
+    │   ├── src/home_service.cpp
+    │   ├── ...
+    └──                   
                              
 ```
 
