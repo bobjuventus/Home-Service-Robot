@@ -87,4 +87,4 @@ Several script files were also created to test sub-tasks. Please see the directo
 * Use `home_service.cpp` to pick up the marker at one position and drop it off at the other position.
 
 The `home_service.sh` script eventually looks like this:
-![alt text](images/occupancygrid.png)
+![alt text](images/home_service.gif)
