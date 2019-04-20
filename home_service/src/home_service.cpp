@@ -3,18 +3,16 @@
 #include <move_base_msgs/MoveBaseActionResult.h>
 
 bool reachgoal = false;
+
 void Callback(const move_base_msgs::MoveBaseActionResult::ConstPtr &msg)
-// void Callback(const move_base_msgs::MoveBaseActionResult &msg)
 {
   ROS_INFO("Callback has been called!");
   if ((*msg).status.status == 3) {
-    ROS_INFO("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    ROS_INFO("Received a success result!");
     reachgoal = true;
     return;
   }
 }
-
-
 
 int main( int argc, char** argv )
 {
@@ -23,7 +21,7 @@ int main( int argc, char** argv )
   ros::NodeHandle n;
   ros::Rate r(1);
   ros::Publisher marker_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 1);
-  ros::Subscriber pose_sub = n.subscribe<move_base_msgs::MoveBaseActionResult>("move_base/result", 10, Callback);
+  ros::Subscriber pose_sub = n.subscribe<move_base_msgs::MoveBaseActionResult>("move_base/result", 10, Callback); 
 
   // Set our initial shape type to be a cube
   uint32_t shape = visualization_msgs::Marker::CUBE;
@@ -86,6 +84,7 @@ int main( int argc, char** argv )
     // wait for the robot to reach the pickup zone
     while (!reachgoal) {
       ROS_INFO_ONCE("Waiting for the goal to be reached");
+      ros::spinOnce();
     }
     reachgoal = false;
 
@@ -101,6 +100,7 @@ int main( int argc, char** argv )
     // wait for the robot to reach the dropoff zone
     while (!reachgoal) {
       ROS_INFO_ONCE("Waiting for the goal to be reached");
+      ros::spinOnce();
     }
     reachgoal = false;
 
